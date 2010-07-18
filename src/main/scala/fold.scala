@@ -20,7 +20,29 @@ object Fold{
 
   def appendL[T](a:List[T], b:List[T]):List[T] = foldL(b,a)(Cons.apply)
 
-  // １つめのfoldLが取る関数は(List[T],List[T])=>List[T]
   def concatL[T](a:List[List[T]]):List[T] = 
     foldL[List[T],List[T]](Nil,a)((x,y)=>foldL(y,x)(Cons.apply))
+
+  def isort[T<%Ordered[T]](l:List[T]) = foldL[T, List[T]](Nil, l)(insert)
+
+  def insert[T<%Ordered[T]](y:T, l:List[T]):List[T] = l match{
+    case Cons(x, xs) => if(y<x) Cons(y, Cons(x,xs)) else Cons(x, insert(y, xs))
+    case _ => wrap(y)
+  }
+
+  // foldLで書くためにはf:(T, (List[T], List[T]))=>(List[T], List[T])
+  def insert1[T<%Ordered[T]](y:T, l:List[T]):(List[T],List[T]) = 
+    foldL[T, (List[T], Cons[T])]((Nil,wrap(y)), l){ (a:T, b:(List[T],Cons[T])) => b match{
+      case (_,Cons(x, xs)) => if(x<a) (Cons(a, b._1), Cons(x, Cons(a,b._1))) else
+	(Cons(a, b._1), Cons(a, b._2))
+    }}
+	
+
+  def isort2[T<%Ordered[T]](l:List[T]) = {
+    def insert[T<%Ordered[T]](y:T, l:List[T]): List[T] = insert1(y,l) match {
+      case (_, ret) => ret
+    }
+    foldL[T, List[T]](Nil, l)(insert)    
+  }
+
 }

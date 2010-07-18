@@ -36,4 +36,29 @@ class FoldTest extends Specification{
       concatL(Cons(a,Cons(b,Cons(c,Nil)))) must_== Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Cons(6,Cons(7,Cons(8,Cons(9,Nil)))))))))
     }
   }
+
+  "isort" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      isort(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+
+  "insert1" should {
+    "insert1 y Nil => (Nil, wrap y)" in{
+      insert1(1, Nil) must_==(Nil, wrap(1))
+    }
+
+    "insert 0 Cons(1,Nil) => (Cons(1,Nil), Cons(0,Cons(1,Nil)))" in {
+      insert1(0,Cons(1,Nil))._1 must_== Cons(1,Nil)
+      insert1(0,Cons(1,Nil))._2 must_== Cons(0,Cons(1,Nil))
+    }
+  }
+
+  "isort2" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      isort2(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
 }
