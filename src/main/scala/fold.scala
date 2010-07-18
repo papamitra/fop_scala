@@ -30,19 +30,35 @@ object Fold{
     case _ => wrap(y)
   }
 
+  // 練習問題3.4
   // foldLで書くためにはf:(T, (List[T], List[T]))=>(List[T], List[T])
   def insert1[T<%Ordered[T]](y:T, l:List[T]):(List[T],List[T]) = 
-    foldL[T, (List[T], Cons[T])]((Nil,wrap(y)), l){ (a:T, b:(List[T],Cons[T])) => b match{
-      case (_,Cons(x, xs)) => if(x<a) (Cons(a, b._1), Cons(x, Cons(a,b._1))) else
-	(Cons(a, b._1), Cons(a, b._2))
-    }}
+    foldL[T, (List[T], Cons[T])]((Nil,wrap(y)), l){
+      case (a, (b ,Cons(x, xs))) => if(x<a) (Cons(a, b), Cons(x, Cons(a,b))) else
+	(Cons(a, b), Cons(a, Cons(x,xs)))
+    }
 	
 
   def isort2[T<%Ordered[T]](l:List[T]) = {
-    def insert[T<%Ordered[T]](y:T, l:List[T]): List[T] = insert1(y,l) match {
+    def insert(y:T, l:List[T]): List[T] = insert1(y,l) match {
       case (_, ret) => ret
     }
     foldL[T, List[T]](Nil, l)(insert)    
   }
 
+  // 練習問題3.5
+  def isort3[T<%Ordered[T]](l:List[T]) = {
+    def insert(y:T, l:List[T]): List[T] = 
+      paraL[T, List[T]](wrap(y), l){
+	case (a, (b, Nil)) => Cons(a, b)
+	case (a, (b, Cons(x, xs))) => if(x<a) Cons(x, Cons(a,b)) else Cons(a, Cons(x,xs))
+      }
+
+    foldL[T, List[T]](Nil, l)(insert)    
+  }
+
+  def paraL[T,U](e:U, l:List[T])(f:(T,(List[T], U))=>U):U = l match{
+    case Cons(x,xs) => f(x,(xs, paraL(e,xs)(f)))
+    case _ => e
+  }
 }

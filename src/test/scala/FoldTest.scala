@@ -61,4 +61,11 @@ class FoldTest extends Specification{
       Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
     }
   }
+
+  "paraL" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      isort3(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
 }
