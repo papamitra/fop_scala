@@ -9,9 +9,20 @@ class FoldTest extends Specification{
   val c = Cons(7,Cons(8,Cons(9,Nil)))
 
   "foldL" should {
-
     "(1,2,3)の足し算をfoldLで" in {
       foldL(0, a)(_ + _) must_==6
+    }
+  }
+
+  "foldL2" should {
+    "(1,2,3)の足し算をfoldL2で" in {
+      foldL2(0, a)(_ + _) must_==6
+    }
+  }
+
+  "foldL3" should {
+    "(1,2,3)の足し算をfoldL3で" in {
+      foldL3(0, a)(_ + _) must_==6
     }
   }
 
@@ -62,10 +73,38 @@ class FoldTest extends Specification{
     }
   }
 
-  "paraL" should {
+  "isort3 from paraL" should {
     "(4,5,2,3,1) -> (1,2,3,4,5)" in{
       isort3(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
       Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
     }
   }
+
+  "minimumL" should {
+    "(4,5,2,3,1) -> 1" in {
+      minimumL[Int](Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_== 1
+    }
+  }
+
+  "deleteL" should {
+    "(4,5,2,3,1) delete 1 -> (4,5,2,3)" in{
+      deleteL(1,Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(4,Cons(5,Cons(2,Cons(3,Nil))))
+    }
+  }
+
+  "delmin" should {
+    "delmin (4,5,2,3,1) -> Some(1,(4,5,2,3))" in{
+      delmin(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Some(1,Cons(4,Cons(5,Cons(2,Cons(3,Nil)))))
+    }
+  }
+
+  "ssort" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      ssort(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+
 }

@@ -14,7 +14,18 @@ object Fold{
     case Cons(x, xs) => f(x, (foldL(e, xs)(f)))
     case _ => e
   }
-	     
+
+  def foldLp[T,U](l:List[T])(f:Option[(T,U)]=>U):U = l match{
+    case Cons(x,xs) => f(Some(x,foldLp(xs)(f)))
+    case Nil => f(None)
+  }
+
+  // 練習問題3.8 foldLをfoldLpで書く
+  def foldL2[T,U](e:U, l:List[T])(f:(T,U)=>U):U = foldLp(l){ o:Option[(T,U)] => o match{
+    case Some((x,y)) => f(x,y)
+    case _ => e
+  }}
+
   def mapL[T,U](l:List[T])(f:T=>U):List[U] = 
     foldL[T,List[U]](Nil, l)((x,y)=>Cons(f(x),y))
 
@@ -61,4 +72,52 @@ object Fold{
     case Cons(x,xs) => f(x,(xs, paraL(e,xs)(f)))
     case _ => e
   }
+
+  def unfoldL[T, U](p:U=>Boolean, f:U=>T, g:U=>U, b:U):List[T] =
+    if (p(b)) Nil else Cons(f(b), unfoldL(p,f,g,g(b)))
+
+  def unfoldLp[T,U](u:U)(f:U=>Option[(T,U)]):List[T] = f(u) match{
+    case None => Nil
+    case Some((x,v)) => Cons(x, (unfoldLp(v)(f)))
+  }
+   
+  // 練習問題3.6　unfoldL'をunfoldLで書く
+  def unfoldLp2[T,U](u:U)(f:U=>Option[(T,U)]):List[T] = 
+    unfoldL(f andThen ((_:Option[(T,U)]).!=(None)), // p:U=>Boolean
+	    f andThen { case Some((x,y)) => x}, // f:U=>T
+	    f andThen { case Some((x,y)) => y}, // g:U=>U
+	    u)
+
+  // unfoldLをunfoldL'で書く
+  def unfoldL2[T, U](p:U=>Boolean, f:U=>T, g:U=>U, b:U):List[T] =
+    unfoldLp(b)( (x:U) => if(!p(x)) None else Some(f(x), g(x)))
+
+  
+  // 練習問題3.9
+  def foldLargs[T,U](e:U)(f:(T,U)=>U):Option[(T,U)]=>U = (_:Option[(T,U)]) match{
+      case Some((x,y)) => f(x,y)
+      case _ => e
+    }
+  
+  // foldLpとfoldLargsでfoldLが書けるはず
+  def foldL3[T,U](e:U, l:List[T])(f:(T,U)=>U):U = foldLp(l){foldLargs(e)(f)}
+
+  def delmin[T<%Ordered[T]](l:List[T]):Option[(T,List[T])] = l match{
+    case xs:Cons[T] => 
+      val y = minimumL(xs)
+      Some(y, deleteL(y,xs))
+    case _ => None
+  }
+  
+
+  def min[T<%Ordered[T]](a:T, b:T) = if(a<b)a else b
+
+  def minimumL[T<%Ordered[T]](l:Cons[T]):T = l match {case Cons(x,xs) => foldL(x,xs)(min)}
+
+  def deleteL[T](y:T,l:List[T]):List[T] = l match {
+    case Cons(x,xs) => if (y==x) xs else Cons(x, deleteL(y, xs))
+    case _ => Nil
+  }
+
+  def ssort[T<%Ordered[T]](l:List[T]):List[T] = unfoldLp[T,List[T]](l)(delmin)
 }
