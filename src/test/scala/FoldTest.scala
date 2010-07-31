@@ -107,4 +107,50 @@ class FoldTest extends Specification{
     }
   }
 
+  // 練習問題3.10 deleteL2
+  "deleteL2" should {
+    "(4,5,2,3,1) delete 1 -> (4,5,2,3)" in{
+      deleteL2(1,Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(4,Cons(5,Cons(2,Cons(3,Nil))))
+    }
+
+    "(4,5,2,3,1) delete 5 -> (4,2,3,1)" in{
+      deleteL2(5,Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(4,Cons(2,Cons(3,Cons(1,Nil))))
+    }
+  }
+
+  // 練習問題3.11 delminをparaLで
+  "delmin2" should {
+    "delmin (4,5,2,3,1) -> Some(1,(4,5,2,3))" in{
+      delmin(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Some(1,Cons(4,Cons(5,Cons(2,Cons(3,Nil)))))
+    }
+    
+    "delmin Nil -> None" in {
+      delmin(Nil) must_== None
+    }
+  }
+
+  "bsort" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      bsort(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+
+  "bsort2" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      bsort2(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+
+  "isort4" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      isort4(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+  
 }
