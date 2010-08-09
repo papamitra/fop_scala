@@ -10,31 +10,31 @@ object Fold{
 
   def nil[T](l:List[T]) = l == Nil
 
-  def foldL[T,U](e:U, l:List[T])(f:(T,U)=>U):U = l match{
-    case Cons(x, xs) => f(x, (foldL(e, xs)(f)))
+  def foldL[T,U](f:(T,U)=>U,e:U, l:List[T]):U = l match{
+    case Cons(x, xs) => f(x, (foldL(f, e, xs)))
     case _ => e
   }
 
-  def foldLp[T,U](l:List[T])(f:Option[(T,U)]=>U):U = l match{
-    case Cons(x,xs) => f(Some(x,foldLp(xs)(f)))
+  def foldLp[T,U](f:Option[(T,U)]=>U, l:List[T]):U = l match{
+    case Cons(x,xs) => f(Some(x,foldLp(f,xs)))
     case Nil => f(None)
   }
 
   // 練習問題3.8 foldLをfoldLpで書く
-  def foldL2[T,U](e:U, l:List[T])(f:(T,U)=>U):U = foldLp(l){ o:Option[(T,U)] => o match{
+  def foldL2[T,U](f:(T,U)=>U,e:U, l:List[T]):U = foldLp({ o:Option[(T,U)] => o match{
     case Some((x,y)) => f(x,y)
     case _ => e
-  }}
+  }}, l)
 
   def mapL[T,U](l:List[T])(f:T=>U):List[U] = 
-    foldL[T,List[U]](Nil, l)((x,y)=>Cons(f(x),y))
+    foldL[T,List[U]]((x,y)=>Cons(f(x),y),Nil, l)
 
-  def appendL[T](a:List[T], b:List[T]):List[T] = foldL(b,a)(Cons.apply)
+  def appendL[T](a:List[T], b:List[T]):List[T] = foldL[T,List[T]](Cons.apply,b,a)
 
   def concatL[T](a:List[List[T]]):List[T] = 
-    foldL[List[T],List[T]](Nil,a)((x,y)=>foldL(y,x)(Cons.apply))
+    foldL[List[T],List[T]]((x,y)=>foldL[T,List[T]](Cons.apply,y,x), Nil,a)
 
-  def isort[T<%Ordered[T]](l:List[T]) = foldL[T, List[T]](Nil, l)(insert)
+  def isort[T<%Ordered[T]](l:List[T]) = foldL[T, List[T]](insert, Nil, l)
 
   def insert[T<%Ordered[T]](y:T, l:List[T]):List[T] = l match{
     case Cons(x, xs) => if(y<x) Cons(y, Cons(x,xs)) else Cons(x, insert(y, xs))
@@ -44,17 +44,17 @@ object Fold{
   // 練習問題3.4
   // foldLで書くためにはf:(T, (List[T], List[T]))=>(List[T], List[T])
   def insert1[T<%Ordered[T]](y:T, l:List[T]):(List[T],List[T]) = 
-    foldL[T, (List[T], Cons[T])]((Nil,wrap(y)), l){
+    foldL[T, (List[T], Cons[T])]({
       case (a, (b ,Cons(x, xs))) => if(x<a) (Cons(a, b), Cons(x, Cons(a,b))) else
 	(Cons(a, b), Cons(a, Cons(x,xs)))
-    }
+    }, (Nil,wrap(y)), l)
 	
 
   def isort2[T<%Ordered[T]](l:List[T]) = {
     def insert(y:T, l:List[T]): List[T] = insert1(y,l) match {
       case (_, ret) => ret
     }
-    foldL[T, List[T]](Nil, l)(insert)    
+    foldL[T, List[T]](insert,Nil, l)
   }
 
   // 練習問題3.5
@@ -65,7 +65,7 @@ object Fold{
 	case (a, (b, Cons(x, xs))) => if(x<a) Cons(x, Cons(a,b)) else Cons(a, Cons(x,xs))
       }
 
-    foldL[T, List[T]](Nil, l)(insert)    
+    foldL[T, List[T]](insert,Nil, l)
   }
 
   def paraL[T,U](e:U, l:List[T])(f:(T,(List[T], U))=>U):U = l match{
@@ -95,13 +95,13 @@ object Fold{
 
   
   // 練習問題3.9
-  def foldLargs[T,U](e:U)(f:(T,U)=>U):Option[(T,U)]=>U = (_:Option[(T,U)]) match{
+  def foldLargs[T,U](f:(T,U)=>U, e:U):Option[(T,U)]=>U = (_:Option[(T,U)]) match{
       case Some((x,y)) => f(x,y)
       case _ => e
-    }
+  }
   
   // foldLpとfoldLargsでfoldLが書けるはず
-  def foldL3[T,U](e:U, l:List[T])(f:(T,U)=>U):U = foldLp(l){foldLargs(e)(f)}
+  def foldL3[T,U](f:(T,U)=>U,e:U, l:List[T]):U = foldLp(foldLargs(f,e),l)
 
   def delmin[T<%Ordered[T]](l:List[T]):Option[(T,List[T])] = l match{
     case xs:Cons[T] => 
@@ -113,7 +113,7 @@ object Fold{
 
   def min[T<%Ordered[T]](a:T, b:T) = if(a<b)a else b
 
-  def minimumL[T<%Ordered[T]](l:Cons[T]):T = l match {case Cons(x,xs) => foldL(x,xs)(min)}
+  def minimumL[T<%Ordered[T]](l:Cons[T]):T = l match {case Cons(x,xs) => foldL(min[T],x,xs)}
 
   def deleteL[T](y:T,l:List[T]):List[T] = l match {
     case Cons(x,xs) => if (y==x) xs else Cons(x, deleteL(y, xs))
@@ -140,7 +140,7 @@ object Fold{
       case None => Some(x, Nil)
     }
     
-    foldL[T, Option[(T,List[T])]](None, l)(step)
+    foldL[T, Option[(T,List[T])]](step,None, l)
   }
 	   
   def bsort[T<%Ordered[T]](l:List[T]):List[T] = unfoldLp[T,List[T]](l)(bubble)
@@ -151,7 +151,7 @@ object Fold{
       case Cons(y,ys) => if(x<y) Cons(x, Cons(y,ys)) else Cons(y, Cons(x,ys))
       case Nil => Cons(x,Nil)
     }
-    foldL[T, List[T]](Nil, l)(step)
+    foldL[T, List[T]](step,Nil, l)
   }
 
   // bubble2を使ってbsortを定義。bubble2で作ったリストを結局展開する必要があるので
@@ -175,7 +175,30 @@ object Fold{
   }
 
   def isort4[T<%Ordered[T]](l:List[T]) = {
-    foldL[T, List[T]](Nil, l)(insert4)
+    foldL[T, List[T]](insert4, Nil, l)
   }
 
+  // 練習問題3.14
+  def apoLp[T,U](a:U)(f:U=>Option[(T,Either[U,List[T]])]):List[T] = f(a) match{
+    case None => Nil
+    case Some((x, Left(v))) => Cons(x, (apoLp(v)(f)))
+    case Some((x, Right(xs))) => Cons(x, xs)
+  }
+
+  def insert5[T<%Ordered[T]](y:T, l:List[T]):List[T] = apoLp[T,List[T]](l){
+    case Cons(x,xs) => if(y<x) Some(y, Right(Cons(x,xs))) else Some(x, Left(xs))
+    case _ => Some(y, Right(Nil))
+  }
+
+  def isort5[T<%Ordered[T]](l:List[T]) = {
+    foldL[T, List[T]](insert5, Nil, l)
+  }
+
+  def hyloL[T,U](f:(T,U)=>U, e:U, p:U=>Boolean, g:U=>T, h:U=>U, b:U):U = 
+    ({foldL[T,U](f,e,_:List[T])} compose {unfoldL(p,g,h,_:U)})(b)
+
+  def fact(n:Int):Int = hyloL[Int,Int]({_*_}, 1, _ == 0, {x=>x}, _ -1, n)
+
+  // 練習問題3.15
+  
 }

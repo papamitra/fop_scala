@@ -10,19 +10,19 @@ class FoldTest extends Specification{
 
   "foldL" should {
     "(1,2,3)の足し算をfoldLで" in {
-      foldL(0, a)(_ + _) must_==6
+      foldL({(x:Int,y:Int)=>x+y},0, a) must_==6
     }
   }
 
   "foldL2" should {
     "(1,2,3)の足し算をfoldL2で" in {
-      foldL2(0, a)(_ + _) must_==6
+      foldL2({(x:Int,y:Int)=>x+y},0, a) must_==6
     }
   }
 
   "foldL3" should {
     "(1,2,3)の足し算をfoldL3で" in {
-      foldL3(0, a)(_ + _) must_==6
+      foldL3({(x:Int,y:Int)=>x+y},0, a) must_==6
     }
   }
 
@@ -152,5 +152,35 @@ class FoldTest extends Specification{
       Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
     }
   }
+
+  "isort5" should {
+    "(4,5,2,3,1) -> (1,2,3,4,5)" in{
+      isort5(Cons(4,Cons(5,Cons(2,Cons(3,Cons(1,Nil)))))) must_==
+      Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+  }
+
+  "insert5" should {
+    "insert5 1 Nil => (1)" in{
+      insert5(1, Nil) must_==Cons(1,Nil)
+    }
+
+    "insert 0 Cons(1,Nil) => Cons(0,Cons(1,Nil))" in {
+      insert5(0,Cons(1,Nil)) must_== Cons(0,Cons(1,Nil))
+    }
+
+    "insert 2 (1, 3, 4, 5) => (1,2,3,4,5)" in {
+      insert5(2,Cons(1,Cons(3,Cons(4,Cons(5,Nil))))) must_== Cons(1,Cons(2,Cons(3,Cons(4,Cons(5,Nil)))))
+    }
+
+  }
   
+  "fact" should {
+    "1 .. 10 fact" in{
+      def f(n:Int):Int = if(n==0) 1 else n*f(n-1)
+      for(i <- 1 to 10){
+	fact(i) must_== f(i)
+      }
+    }
+  }
 }
