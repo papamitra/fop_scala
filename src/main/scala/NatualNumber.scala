@@ -33,4 +33,22 @@ object NaturalNumber{
 
   def powN(x:Nat, y:Nat) = foldN(Succ(Zero), mulN(_:Nat, x), y)
 
+  def predN(n:Nat):Option[Nat] = n match {
+    case Succ(x) => Some(x)
+    case _ => None
+  }
+
+  def predN_from_foldN (n:Nat):Option[Nat] =
+    foldN[Option[Nat]](None, {a => a match {
+		  case Some(x) => Some(Succ(x))
+		  case None => Some(Zero)}
+	       }, n)
+
+  def subN(x:Nat, y:Nat):Option[Nat] =
+    foldN[Option[Nat]](Some(x), {a => a match {
+		  case Some(Succ(n)) => Some(n) 
+		  case Some(Zero) => None
+		  case None => None}
+	       }, y)
+
 }

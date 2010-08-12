@@ -34,4 +34,21 @@ class NaturalNumberTest extends Specification{
       powN(3,4) must_== num2Nat(81)
     }
   }
+
+  
+  "練習問題3.19" should {
+    "predN と predN_from_foldNは等しくなるはず" in{
+      predN_from_foldN(4) must_== Some(num2Nat(3))
+      predN(4) must_== predN_from_foldN(4)
+      predN(0) must_== predN_from_foldN(0)
+    }
+  }
+
+  "練習問題3.20" should {
+    "subN" in {
+      subN(4,2) must_== Some(num2Nat(2))
+      subN(2,4) must_== None
+    }
+  }
+
 }
